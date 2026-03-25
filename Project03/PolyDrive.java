@@ -3,15 +3,33 @@ package edu.ilstu;
 public class PolyDriver {
 
 	public static void main(String[] args) {
+		//first sample output test
+		//first polynomials
+		MySingleLinkedList<Term> firstPoly = new MySingleLinkedList<>();
+		firstPoly.add(new Term(3,4));
+		firstPoly.add(new Term(2,2));
+		firstPoly.add(new Term(3,1));
+		firstPoly.add(new Term(7,0));
 		
+		//second polynomials
+		MySingleLinkedList<Term> secondPoly = new MySingleLinkedList<>();
+		secondPoly.add(new Term(2,3));
+		secondPoly.add(new Term(-5,1));
+		secondPoly.add(new Term(5,0));
+		
+		// displays first and second polynomials and what they look like added together
+		System.out.println("Sample output for the method add: ");
+		displayAllTerms(firstPoly, "First polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		displayAllTerms(add(firstPoly, secondPoly), "Sum");
 		
 	}
 	
-	public static MySingleLinkedList<Term> addTerms(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms) {
+	public static MySingleLinkedList<Term> add(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms) {
 		MySingleLinkedList<Term> addedTerms = new MySingleLinkedList<>();
 		
 		// goes through each element in firstTerms list
-		for (int i = 0; i < firstTerms.size(); i++) {
+		while (firstTerms.size() > 0) {
 			// Checks which term is greater and adds that term to the list.
 			// Then removes the greater term.
 			// If they are equal, create a new term with the coefficants added together
@@ -61,6 +79,15 @@ public class PolyDriver {
 		
 		
 		return addedTerms;
+	}
+	
+	public static void displayAllTerms(MySingleLinkedList<Term> terms, String text) {
+		System.out.print(text + " = ");
+        for (int i = 0; i < terms.size()-1; i++) {
+        		System.out.print(terms.get(i) + "+");
+        }
+        // prints last term without a plus sign
+        System.out.println(terms.get(terms.size()-1));
 	}
 
 }
