@@ -1,4 +1,4 @@
-package assignment3New;
+package edu.ilstu;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

@@ -18,13 +18,28 @@ public class Term {
 	}
 	
 	public String toString() {
-		if (this.exponent == 0) {
+		String output = "";
+		
+		// adds coefficient to output  
+		// if exponent is not 0, add an x behind coefficant(do not show coefficant if it is equal to 1)
+		if (this.exponent != 0) {
+			if (this.coefficient == 1) {
+				output = "x";
+			}
+			else {
+				output = this.coefficient + "x";
+			}
+		}
+		else {
 			return this.coefficient + "";
 		}
-		if (this.exponent == 1) {
-			return this.coefficient + "x";
+		
+		// adds exponent to output
+		// if exponent is not 0 or 1, add ^ and exponent
+		if (this.exponent != 0 && this.exponent != 1) {
+			output += "^" + this.exponent;
 		}
 		
-		return this.coefficient + "x^" + this.exponent;
+		return output;
 	}
 }
