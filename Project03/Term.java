@@ -25,6 +25,6 @@ public class Term {
 			return this.coefficient + "x";
 		}
 		
-		return this.coefficient + "^" + this.exponent;
+		return this.coefficient + "x^" + this.exponent;
 	}
 }
