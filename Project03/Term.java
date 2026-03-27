@@ -20,24 +20,31 @@ public class Term {
 	public String toString() {
 		String output = "";
 		
-		// adds coefficient to output  
-		// if exponent is not 0, add an x behind coefficant(do not show coefficant if it is equal to 1)
-		if (this.exponent != 0) {
-			if (this.coefficient == 1) {
-				output = "x";
+		if (this.coefficient != 0) {//if coefficient is zero, skip and return an empty string
+			// adds coefficient to output  
+			// if exponent is not 0, add an x behind coefficant(do not show coefficant if it is equal to 1 OR -1)
+			if (this.exponent != 0) {
+				if (this.coefficient == 1) {
+					output += "x";
+				}
+				else if (this.coefficient == -1) {
+					output += "-x";
+				}
+				else {
+					output += this.coefficient + "x";
+				}
+				
+				// adds exponent to output
+				// if exponent is not 0 or 1, add ^ and exponent
+				if (this.exponent != 1) {
+					output += "^" + this.exponent;
+				}
 			}
 			else {
-				output = this.coefficient + "x";
+				output += this.coefficient + "";
 			}
-		}
-		else {
-			return this.coefficient + "";
-		}
-		
-		// adds exponent to output
-		// if exponent is not 0 or 1, add ^ and exponent
-		if (this.exponent != 0 && this.exponent != 1) {
-			output += "^" + this.exponent;
+			
+			
 		}
 		
 		return output;
