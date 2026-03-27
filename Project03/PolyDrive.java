@@ -133,6 +133,61 @@ public class PolyDriver {
 		displayAllTerms(secondPoly, "Second polynomial");
 		displayAllTerms(add(firstPoly, secondPoly, firstIter, secondIter), "Sum");
 		
+		//8th sample output test
+		//first polynomials
+		firstPoly.add(new Term(3,4));
+		firstPoly.add(new Term(2,3));
+		firstPoly.add(new Term(-1,1));
+		firstPoly.add(new Term(-8,-1));
+		firstPoly.add(new Term(5,-3));
+		firstIter = firstPoly.iterator();
+		
+		//second polynomials
+		secondPoly.add(new Term(2,5));
+		secondPoly.add(new Term(-3,4));
+		secondPoly.add(new Term(6,0));
+		secondPoly.add(new Term(8,-1));
+		secondPoly.add(new Term(-4,-3));
+		secondIter = secondPoly.iterator();
+		
+		// displays first and second polynomials and what they look like added together
+		displayAllTerms(firstPoly, "\nFirst polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		displayAllTerms(add(firstPoly, secondPoly, firstIter, secondIter), "Sum");
+		
+		
+		//8th sample output test
+		//first polynomials
+		firstPoly.add(new Term(5,0));
+		firstIter = firstPoly.iterator();
+		
+		//second polynomials
+		secondPoly.add(new Term(-5,0));
+		secondIter = secondPoly.iterator();
+		
+		// displays first and second polynomials and what they look like added together
+		displayAllTerms(firstPoly, "\nFirst polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		displayAllTerms(add(firstPoly, secondPoly, firstIter, secondIter), "Sum");
+		
+		
+		//9th sample output test
+		//first polynomials
+		firstPoly.add(new Term(1,2));
+		firstPoly.add(new Term(7,-2));
+		firstIter = firstPoly.iterator();
+		
+		//second polynomials
+		secondPoly.add(new Term(-1,2));
+		secondPoly.add(new Term(5,0));
+		secondPoly.add(new Term(-7,-2));
+		secondIter = secondPoly.iterator();
+		
+		// displays first and second polynomials and what they look like added together
+		displayAllTerms(firstPoly, "\nFirst polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		displayAllTerms(add(firstPoly, secondPoly, firstIter, secondIter), "Sum");
+		
 	}
 	
 	public static MySingleLinkedList<Term> add(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms, Iterator<Term> iter1, Iterator<Term> iter2) {
@@ -205,20 +260,26 @@ public class PolyDriver {
 	
 	public static void displayAllTerms(MySingleLinkedList<Term> terms, String text) {
 		System.out.print(text + " = ");
-		// prints first term
-		System.out.print(terms.get(0));
-		//prints every term after with addition sign in front if coefficant is positive
-        for (int i = 1; i < terms.size(); i++) {
-        	if(terms.get(i).getCoe() < 0) {
-        		System.out.print(terms.get(i));
-        	}
-        	else {
-        		System.out.print("+" + terms.get(i));
-        	}
-        		
+		boolean isFirst = true;//keeps track if a term other than zero has been printed to prevent a plus sign from starting
+		
+		//first checks to account for when all the terms had added up to zero
+        if (terms.size() == 1 && terms.get(0).getCoe() == 0) {
+        	System.out.println(0);
         }
-        
-        System.out.println();
+        else {
+        	//prints every term after with addition sign in front if coefficant is positive
+	        for (int i = 0; i < terms.size()-1; i ++) {
+	        	if(terms.get(i).getCoe() < 0 || (isFirst && terms.get(i).getCoe() != 0)) {
+	        		System.out.print(terms.get(i));
+	        		isFirst = false;
+	        	}
+	        	else if (terms.get(i).getCoe() > 0){
+	        		System.out.print("+" + terms.get(i));
+	        	}
+	        }
+	        System.out.println(terms.get(terms.size()-1));
+        }
+		
 	}
 
 }
