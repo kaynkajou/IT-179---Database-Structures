@@ -7,11 +7,12 @@ public class PolyDriver {
 	public static void main(String[] args) {
 		MySingleLinkedList<Term> firstPoly = new MySingleLinkedList<>();
 		MySingleLinkedList<Term> secondPoly = new MySingleLinkedList<>();
+		MySingleLinkedList<Term> combined = new MySingleLinkedList<>();
 		Iterator<Term> firstIter = null;
 		Iterator<Term> secondIter = null;
 		
-		// Testing the add method on several tests
-		System.out.println("Sample output for the method add: \n");
+		// Testing the add method -------------------------------------------------------
+		System.out.println("Output for the method add: \n");
 		//first sample output test
 		//first polynomials
 		firstPoly.add(new Term(3,4));
@@ -188,6 +189,52 @@ public class PolyDriver {
 		displayAllTerms(secondPoly, "Second polynomial");
 		displayAllTerms(add(firstPoly, secondPoly, firstIter, secondIter), "Sum");
 		
+		// Testing the multiplication method -------------------------------------------------------
+		System.out.println("\nOutput for the multiply method.");
+		//10th sample output test
+		//first polynomials
+		firstPoly.add(new Term(2,3));
+		firstPoly.add(new Term(2,2));
+		firstPoly.add(new Term(-1,1));
+		firstPoly.add(new Term(3,0));
+		firstIter = firstPoly.iterator();
+		
+		//second polynomials
+		secondPoly.add(new Term(3,2));
+		secondPoly.add(new Term(-2,1));
+		secondPoly.add(new Term(2,0));
+		secondIter = secondPoly.iterator();
+		
+		// displays first and second polynomials and what they look like added together
+		displayAllTerms(firstPoly, "\nFirst polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		//combined
+		combined = multiply(firstPoly, secondPoly, firstIter, secondIter);
+		displayAllTerms(combined, "Multiplication");
+		displayAllTerms(simplify(combined), "Simplified");
+		
+		
+		//10th sample output test
+		//first polynomials
+		firstPoly.add(new Term(1,1));
+		firstPoly.add(new Term(1,0));
+		firstIter = firstPoly.iterator();
+		
+		//second polynomials
+		secondPoly.add(new Term(1,1));
+		secondPoly.add(new Term(1,0));
+		secondIter = secondPoly.iterator();
+		
+		// displays first and second polynomials and what they look like added together
+		displayAllTerms(firstPoly, "\nFirst polynomial");
+		displayAllTerms(secondPoly, "Second polynomial");
+		//combined
+		combined = multiply(firstPoly, secondPoly, firstIter, secondIter);
+		displayAllTerms(combined, "Multiplication");
+		displayAllTerms(simplify(combined), "Simplified");
+		
+		
+		
 	}
 	
 	public static MySingleLinkedList<Term> add(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms, Iterator<Term> iter1, Iterator<Term> iter2) {
@@ -237,12 +284,12 @@ public class PolyDriver {
 		return addedTerms;
 	}
 	
-	public static MySingleLinkedList<Term> multiplyTerms(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms) {
+	public static MySingleLinkedList<Term> multiply(MySingleLinkedList<Term> firstTerms, MySingleLinkedList<Term> secondTerms, Iterator<Term> iter1, Iterator<Term> iter2) {
 		MySingleLinkedList<Term> addedTerms = new MySingleLinkedList<>();
 		
 		// For each term in the firstTerms, it will be multiplied with
 		// each term in the secondTerms list. 
-		for (int i = 0; i < firstTerms.size(); i ++) {
+		for (int i = 0; i < firstTerms.size(); i++) {
 			for (int j = 0; j < secondTerms.size(); j ++) {
 				// Multiplies two terms by multipling the coefficant
 				// and adding the exponents to create a new term to 
@@ -251,16 +298,53 @@ public class PolyDriver {
 				int exponent = firstTerms.get(i).getExp() + secondTerms.get(j).getExp();
 				Term multipliedTerms = new Term(coefficant, exponent);
 				addedTerms.add(multipliedTerms);
+				// empties second list on last run
+//				if (j == secondTerms.size() -1) {
+//					iter2.next();
+//					iter2.remove();
+//				}
 			}
+//			iter1.next();
+//			iter1.remove();
 		}
 		
 		
 		return addedTerms;
 	}
 	
+	public static MySingleLinkedList<Term> simplify(MySingleLinkedList<Term> terms) {
+		MySingleLinkedList<Term> simplified = new MySingleLinkedList<>();
+		Iterator iter = terms.iterator();
+		
+		//adds first term to simplified since it will 
+		//have the largest exponent and is the first 
+		//one in so there is nothing to compare to 
+		simplified.add(terms.get(0));
+		iter.next();
+		iter.remove();
+		
+		while(iter.hasNext()) {
+			boolean matchFound = false;
+			for (int i = 0; i < simplified.size(); i++) {
+				if (terms.get(0).getExp() == simplified.get(i).getExp()) {
+					int newCoe = terms.get(0).getCoe() + simplified.get(i).getCoe();
+					simplified.get(i).setCoe(newCoe);
+					matchFound = true;
+				}
+			}
+			if (!matchFound) {
+				simplified.add(terms.get(0));
+			}
+			iter.next();
+			iter.remove();
+		}
+		
+		return simplified;
+	}
+	
 	public static void displayAllTerms(MySingleLinkedList<Term> terms, String text) {
 		System.out.print(text + " = ");
-		boolean isFirst = true;//keeps track if a term other than zero has been printed to prevent a plus sign from starting
+		boolean isFirst = true;//keeps track if a term is the first non-zero number
 		
 		//first checks to account for when all the terms had added up to zero
         if (terms.size() == 1 && terms.get(0).getCoe() == 0) {
@@ -277,7 +361,16 @@ public class PolyDriver {
 	        		System.out.print("+" + terms.get(i));
 	        	}
 	        }
-	        System.out.println(terms.get(terms.size()-1));
+	        //prints last term
+	        if (isFirst && terms.get(terms.size()-1).getCoe() != 0) {
+	        	System.out.println(terms.get(terms.size()-1));
+	        }
+	        else if (terms.get(terms.size()-1).getCoe() != 0){
+	        	System.out.println("+" + terms.get(terms.size()-1));
+	        }
+	        else {
+	        	System.out.println();
+	        }
         }
 		
 	}
