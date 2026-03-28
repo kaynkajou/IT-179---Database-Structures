@@ -49,4 +49,8 @@ public class Term {
 		
 		return output;
 	}
+
+	public void setCoe(int coe) {
+		this.coefficient = coe;
+	}
 }
