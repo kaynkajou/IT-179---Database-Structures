@@ -25,7 +25,22 @@ public class Gadget {
 	}
 	
 	public String toString() {
-		return "Gadget ID:" + id + "         Price:$" + price;
+		String output = "Gadget ID:" + id;
+		if(id < 10) {
+			output += "         Price:$";
+		}
+		else if (id < 100) {
+			output += "        Price:$";
+		}
+		else if (id < 1000) {
+			output += "       Price:$";
+		}
+		else {
+			output += "      Price:$";
+		}
+		output += price;
+		
+		return output;
 	}
 
 }
