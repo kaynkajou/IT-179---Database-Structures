@@ -17,7 +17,7 @@ public class Gadget {
 		Random rand = new Random();
 		this.uniqueId ++;
 		this.price = materialPrice + (rand.nextInt(5) + 1);
-		this.id = this.uniqueId;
+		this.id = uniqueId;
 	}
 	
 	public int getPrice() {

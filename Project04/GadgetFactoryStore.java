@@ -24,7 +24,7 @@ public class GadgetFactoryStore {
 		Random rand = new Random();
 		LocalDate currDate = LocalDate.of(2026, 4, 1);
 		Queue<Order> orders = new ArrayDeque<>();
-		Queue<Order> fulfilledOrders = new ArrayDeque<>();
+		Deque<Order> fulfilledOrders = new ArrayDeque<>();
 		Deque<List<Gadget>> gadgets = new ArrayDeque<>();
 		int monthlyMaterialPrice = 12;
 		int gadgetsTotal = 0;
@@ -34,6 +34,7 @@ public class GadgetFactoryStore {
 		boolean isFull = false;
 		//monthly report variables
 		double totalSales = 0;
+		double prevMonthProfit = 0;
 		int gadgetsSold = 0, returned = 0;
 		
 		System.out.println("\t\t\t\tWelcome to the Gadget Factory Store Simulation System ");
@@ -45,7 +46,7 @@ public class GadgetFactoryStore {
 			
 			// 2. produces two batches of gadgets and push them onto a Gadget stack 
 			for (int i = 0; i < TOTAL_BATCHES; i++) {
-				gadgets.push(makeBatch(monthlyMaterialPrice));
+				gadgets.push(makeBatch(monthlyMaterialPrice, BATCH_SIZE));
 				gadgetsTotal += BATCH_SIZE;
 			}
 			System.out.println("gadgets in stock: " + gadgetsTotal +"\n");
@@ -84,12 +85,12 @@ public class GadgetFactoryStore {
 					Order currOrder = orders.poll();
 					int gadgetsRequired = currOrder.getGadgets();
 					
-					System.out.println("\nProcessing the old order: ");
+					System.out.println("Processing the old order: ");
 					processOrder(currOrder, gadgets, fulfilledOrders, currDate);
 					totalSales += currOrder.calcPrice();//TODO add taxes to total prices
 					gadgetsTotal -= gadgetsRequired;
 					gadgetsSold += gadgetsRequired;
-					System.out.println("Delivering the following gadgets:\n" + currOrder);
+					System.out.println("Delivering the following gadgets:\n" + currOrder + "\n");
 				}
 				else {
 					if (isFull) {
@@ -118,11 +119,20 @@ public class GadgetFactoryStore {
 			// information about the store’s return policy below. To simulate the 20% of chance, you may use a
 			// Random object to generate a random integer in between [1,5] and check to see if it matches a
 			// predetermined lucky number
-			Order returnedOrder = returnOrder(currDate, fulfilledOrders);//TODO: make sure to check date of order returned is valid
+			Order returnedOrder = returnOrder(currDate, fulfilledOrders);
 			if (returnedOrder != null) {
+				int returnedMonth = returnedOrder.getDate().getMonthValue();
+				int currMonth = currDate.getMonthValue();
+				
 				returned += returnedOrder.getGadgets();
 				gadgetsSold -= returnedOrder.getGadgets();
-				totalSales -= returnedOrder.calcPrice();
+				if (returnedMonth == currMonth) {
+					totalSales -= returnedOrder.calcPrice();
+				}
+				else {
+					prevMonthProfit = adjustLastMonthProfit(prevMonthProfit, returnedOrder);
+				}
+				
 			}
 			
 			// 8. The program prints out a summary of the current month’s profit information at the end of each
@@ -132,13 +142,13 @@ public class GadgetFactoryStore {
 			int currDay = currDate.getDayOfMonth();
 			int lastDay = currDate.lengthOfMonth();
 			if (currDay ==  lastDay) {
-				monthlyReport(totalSales, gadgetsSold, returned, monthlyMaterialPrice);
+				prevMonthProfit = monthlyReport(totalSales, gadgetsSold, returned, monthlyMaterialPrice);
 				monthlyMaterialPrice = rand.nextInt(5) + 11;
 			}
 			
 			// 9. Display the number of gadgets in stock.
 			if (prevTotal != gadgetsTotal) {
-				System.out.println("Gadgets in stock: " + gadgetsTotal);//TODO: should only appear if gadgets decrease
+				System.out.println("Gadgets in stock: " + gadgetsTotal);
 			}
 			
 			
@@ -148,7 +158,7 @@ public class GadgetFactoryStore {
 		}
 	}
 	
-	public static List<Gadget> makeBatch(int materialPrice) {
+	public static List<Gadget> makeBatch(int materialPrice, int batchSize) {
 		List<Gadget> batch = new LinkedList<>();
 		
 		// creates 5 gadgets to add to the batch
@@ -195,7 +205,7 @@ public class GadgetFactoryStore {
 		fulfilledOrders.add(order);
 	}
 	
-	public static void monthlyReport(double totalSales, int gadgetsSold, int returned, int materialPrice) {
+	public static double monthlyReport(double totalSales, int gadgetsSold, int returned, int materialPrice) {
 		//(total_sales_this_month – total_return_this_month)/1.08 –
 		//(total_number_of_gadgets_sold_this_month – total_number_of_gadgets_returned_this_month) *
 		//material_price_this_month
@@ -205,24 +215,40 @@ public class GadgetFactoryStore {
 		System.out.println("\nMonthly Profit Report:\n"
 				          + "                     Total sales:" + format.format(totalSales)
 				          + "       gadgets sold:" + gadgetsSold 
-				          + "           Retruned:" + returned 
+				          + "           Returned:" + returned 
 				          + "             Profit:" + format.format(profit));
-		//TODO: add updated report is an order was returned?
+		
+		return profit;
 	}
 	
 	public static Order returnOrder(LocalDate date, Queue<Order> fulfilledOrders) {
 		Random rand = new Random();
 		final int returnNumber = 3;
+		int currMonth = date.getMonthValue();
 		int chance = rand.nextInt(5) + 1;
 		
 		if (fulfilledOrders.size() != 0 && returnNumber == chance) {
 			Order returned = fulfilledOrders.poll();
-			System.out.println("Returning order:\nOrder Date: " + returned.getDate()
+			int returnMonth = returned.getDate().getMonthValue();
+			int ageByDays = currMonth - returnMonth;
+			
+			
+			if (ageByDays < 4) {
+				System.out.println("Returning order:\nOrder Date: " + returned.getDate()
 					+ "\n                    " + returned.getOrder() + "\n");//TODO change date to order date originally completed
-			return returned;
+				return returned;
+			}
 		}
-		
+		//if no order could be returned, return null
 		return null;
 	}
 	
+	public static double adjustLastMonthProfit(double prevProfit, Order returnedOrder) {
+		DecimalFormat format = new DecimalFormat("$####0.00");
+		double adjustedProfit = prevProfit - returnedOrder.calcPrice();
+		
+		System.out.println("             Last month's profit:" + format.format(prevProfit) + "    Adjusted profit:" + format.format(adjustedProfit));
+		
+		return adjustedProfit;
+	}
 }
