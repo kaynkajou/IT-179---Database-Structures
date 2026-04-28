@@ -67,12 +67,12 @@ public class GadgetFactoryStore {
 				else {
 					// 4. If the order can be fulfilled now, process the order by removing the exact number of gadgets from
 					// the stack required by the order and then displaying the billing information.
-					System.out.println("Processing the New order...");
+					System.out.println("\nProcessing the New order...");
 					processOrder(newOrder, gadgets, fulfilledOrders, currDate);
 					totalSales += newOrder.calcPrice();
 					gadgetsTotal -= gadgetsRequired;
 					gadgetsSold += gadgetsRequired;
-					System.out.println("Delivering the following gadgets:\n" + newOrder);
+					System.out.println("Delivering the following gadgets:\n" + newOrder + "\n");
 				}
 			}
 			
@@ -85,7 +85,7 @@ public class GadgetFactoryStore {
 					Order currOrder = orders.poll();
 					int gadgetsRequired = currOrder.getGadgets();
 					
-					System.out.println("Processing the old order: ");
+					System.out.println("\nProcessing the old order: ");
 					processOrder(currOrder, gadgets, fulfilledOrders, currDate);
 					totalSales += currOrder.calcPrice();//TODO add taxes to total prices
 					gadgetsTotal -= gadgetsRequired;
@@ -95,25 +95,32 @@ public class GadgetFactoryStore {
 				else {
 					if (isFull) {
 						System.out.println("Next order to process:");
-						System.out.println("                    " + orders.peek().getOrder());
+						System.out.println("                    " + orders.peek().getOrder() + "\n\n");
 					}
 					// if can not fulfill the first order end loop
 					break;
 				}
 				}
 			
+
+			// 9. Display the number of gadgets in stock.
+			if (prevTotal != gadgetsTotal) {
+				System.out.println("Gadgets in stock: " + gadgetsTotal + "\n");
+			}
 			
+			// Checks to see if more orders should be taken the next day
 			if (orders.peek() == null) {
 				if (isFull) {
-					System.out.println("Start taking new orders next day.");
+					System.out.println("Start taking new orders next day.\n");
 				}
 				isFull = false;
 			}
 			else if (orders.size() == 3 && !isFull) {
 				isFull = true;
 				System.out.println("Stop taking new orders, waiting to process the order:");
-				System.out.println("                    " + orders.peek().getOrder());
+				System.out.println("                    " + orders.peek().getOrder() + "\n");
 			}
+			
 			
 			// 7. Each day, there is 20% of chance that a previously fulfilled order will be returned. See the detailed
 			// information about the store’s return policy below. To simulate the 20% of chance, you may use a
@@ -143,14 +150,11 @@ public class GadgetFactoryStore {
 			int lastDay = currDate.lengthOfMonth();
 			if (currDay ==  lastDay) {
 				prevMonthProfit = monthlyReport(totalSales, gadgetsSold, returned, monthlyMaterialPrice);
+				totalSales = 0;
+				gadgetsSold = 0;
+				returned = 0;
 				monthlyMaterialPrice = rand.nextInt(5) + 11;
 			}
-			
-			// 9. Display the number of gadgets in stock.
-			if (prevTotal != gadgetsTotal) {
-				System.out.println("Gadgets in stock: " + gadgetsTotal);
-			}
-			
 			
 			// 10. proceed to the next day
 			currDate = currDate.plusDays(1);
@@ -212,11 +216,11 @@ public class GadgetFactoryStore {
 		double profit = (totalSales - returned)/1.08 - (gadgetsSold - returned)*materialPrice;
 		DecimalFormat format = new DecimalFormat("$####0.00");
 		
-		System.out.println("\nMonthly Profit Report:\n"
+		System.out.println("Monthly Profit Report:\n"
 				          + "                     Total sales:" + format.format(totalSales)
 				          + "       gadgets sold:" + gadgetsSold 
 				          + "           Returned:" + returned 
-				          + "             Profit:" + format.format(profit));
+				          + "             Profit:" + format.format(profit) + "\n");
 		
 		return profit;
 	}
@@ -251,4 +255,5 @@ public class GadgetFactoryStore {
 		
 		return adjustedProfit;
 	}
+	 
 }
