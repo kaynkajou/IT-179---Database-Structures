@@ -61,7 +61,7 @@ public class GadgetFactoryStore {
 				if (gadgetsRequired > gadgetsTotal) {
 					// 5. If not, save the order to an Order queue such that it will be processed in the future when there are
 					// enough gadgets.
-					System.out.println("\nNot enough gadgets for the order, saving it for furture deliveries.\n");
+					System.out.println("\nNot enough gadgets for the order, saving it for future deliveries.\n");
 					orders.offer(newOrder);
 				}
 				else {
@@ -180,7 +180,7 @@ public class GadgetFactoryStore {
 		return newOrder;
 	}
 	
-	public static void processOrder(Order order, Deque<List<Gadget>> gadgets, Queue<Order> fulfilledOrders, LocalDate currDate) {
+	public static void processOrder(Order order, Deque<List<Gadget>> gadgets, Deque<Order> fulfilledOrders, LocalDate currDate) {
 		List<Gadget> batch = gadgets.pop();
 		List<Gadget> orderedGadgets = new LinkedList<>();
 		
@@ -202,7 +202,7 @@ public class GadgetFactoryStore {
 		
 		order.fulfillOrder(orderedGadgets);
 		order.setDate(currDate);
-		fulfilledOrders.add(order);
+		fulfilledOrders.push(order);
 	}
 	
 	public static double monthlyReport(double totalSales, int gadgetsSold, int returned, int materialPrice) {
@@ -221,19 +221,19 @@ public class GadgetFactoryStore {
 		return profit;
 	}
 	
-	public static Order returnOrder(LocalDate date, Queue<Order> fulfilledOrders) {
+	public static Order returnOrder(LocalDate date, Deque<Order> fulfilledOrders) {
 		Random rand = new Random();
 		final int returnNumber = 3;
-		int currMonth = date.getMonthValue();
+		int currDay = date.getDayOfYear();
 		int chance = rand.nextInt(5) + 1;
 		
 		if (fulfilledOrders.size() != 0 && returnNumber == chance) {
-			Order returned = fulfilledOrders.poll();
-			int returnMonth = returned.getDate().getMonthValue();
-			int ageByDays = currMonth - returnMonth;
+			Order returned = fulfilledOrders.pop();
+			int returnDay = returned.getDate().getDayOfYear();
+			int ageByDays = currDay - returnDay;
 			
 			
-			if (ageByDays < 4) {
+			if (ageByDays < 4 ) {
 				System.out.println("Returning order:\nOrder Date: " + returned.getDate()
 					+ "\n                    " + returned.getOrder() + "\n");//TODO change date to order date originally completed
 				return returned;
