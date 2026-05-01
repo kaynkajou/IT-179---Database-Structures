@@ -1,5 +1,6 @@
 /**
- * 
+ * ULID: <krhurdl>
+ * Class: IT 168 
  */
 package edu.ilstu;
 
@@ -13,13 +14,13 @@ import java.util.Queue;
 import java.util.Random;
 
 /**
- * 
+ * Driver class that simulates 100 days of the Gadget Factory Store.
+ * It keeps tracks of the date. Produces 2 batches a day(5 gadgets 
+ * each). Takes new orders and save orders that can not be completed
+ * immediately. Also simulates the 20% customers return orders. 
  */
 public class GadgetFactoryStore {
-
-	/**
-	 * @param args
-	 */
+	
 	public static void main(String[] args) {
 		Random rand = new Random();
 		LocalDate currDate = LocalDate.of(2026, 4, 1);
@@ -76,10 +77,8 @@ public class GadgetFactoryStore {
 				}
 			}
 			
-			// 6. After step 4 or 5, the program should also check if the first order in the queue can be fulfilled. If
-			// yes, the program should process the order and then remove it from the queue. This process should
-			// keep running until the first order in the queue cannot be fulfilled, or there are no more orders in the
-			// queue.
+			// 6. Checks if the first order in the queue can be fulfilled. If yes, the program should process the order 
+			// and then remove it from the queue. Keeps running until the first order cannot be fulfilled,  or there are no more orders.
 			while (orders.peek() != null) {
 				if (orders.peek().getGadgets() <= gadgetsTotal) {
 					Order currOrder = orders.poll();
@@ -87,7 +86,7 @@ public class GadgetFactoryStore {
 					
 					System.out.println("\nProcessing the old order: ");
 					processOrder(currOrder, gadgets, fulfilledOrders, currDate);
-					totalSales += currOrder.calcPrice();//TODO add taxes to total prices
+					totalSales += currOrder.calcPrice();
 					gadgetsTotal -= gadgetsRequired;
 					gadgetsSold += gadgetsRequired;
 					System.out.println("Delivering the following gadgets:\n" + currOrder + "\n");
@@ -122,10 +121,7 @@ public class GadgetFactoryStore {
 			}
 			
 			
-			// 7. Each day, there is 20% of chance that a previously fulfilled order will be returned. See the detailed
-			// information about the store’s return policy below. To simulate the 20% of chance, you may use a
-			// Random object to generate a random integer in between [1,5] and check to see if it matches a
-			// predetermined lucky number
+			// 7. Simulates 20% of chance that a previously fulfilled order will be returned. 
 			Order returnedOrder = returnOrder(currDate, fulfilledOrders);
 			if (returnedOrder != null) {
 				int returnedMonth = returnedOrder.getDate().getMonthValue();
@@ -142,10 +138,8 @@ public class GadgetFactoryStore {
 				
 			}
 			
-			// 8. The program prints out a summary of the current month’s profit information at the end of each
-			// month. Notice that this part requires the display of the number of gadgets sold and returned. The
-			// first number includes the second number. For instance, if the number of gadgets sold is 293 and the
-			// number of gadgets returned is 69, the real number of gadgets sold is: 293 – 69 = 224.
+			// 8. Prints out summary of the current month’s profit information at the end of each
+			// month. Resets variables for the next month.
 			int currDay = currDate.getDayOfMonth();
 			int lastDay = currDate.lengthOfMonth();
 			if (currDay ==  lastDay) {
@@ -153,7 +147,7 @@ public class GadgetFactoryStore {
 				totalSales = 0;
 				gadgetsSold = 0;
 				returned = 0;
-				monthlyMaterialPrice = rand.nextInt(5) + 11;
+				monthlyMaterialPrice = rand.nextInt(10,16);
 			}
 			
 			// 10. proceed to the next day
@@ -162,6 +156,15 @@ public class GadgetFactoryStore {
 		}
 	}
 	
+	/**
+	 * Creates a batch of gadgets the size of the batch size 
+	 * in a list using the material price to create each
+	 * gadget.
+	 * 
+	 * @param materialPrice for the current month
+	 * @param batchSize - amount of gadgets per batch
+	 * @return batch of gadgets stored in a list
+	 */
 	public static List<Gadget> makeBatch(int materialPrice, int batchSize) {
 		List<Gadget> batch = new LinkedList<>();
 		
@@ -174,6 +177,14 @@ public class GadgetFactoryStore {
 		return batch;
 	}
 	
+	/**
+	 * Generates a new order by generating a random
+	 * number 1 to 30 to assign the gadgets required 
+	 * for this order. Then displays the new order.
+	 * 
+	 * @param currentDate the order was made
+	 * @return the new order created
+	 */
 	public static Order createOrder(LocalDate currDate) {
 		Random rand = new Random();
 		
@@ -184,6 +195,19 @@ public class GadgetFactoryStore {
 		return newOrder;
 	}
 	
+	/**
+	 * Takes out first gadget batch. Removes gadgets from batch
+	 * till batch is empty. Then grabs next batch is needed. 
+	 * Repeats until order has enough gadgets. If a batch was
+	 * not entirely empty, it pushes it back onto gadgets.
+	 * Finally, order is fulfilled and added to fulfilled
+	 * orders.
+	 * 
+	 * @param order that is to be processed
+	 * @param gadgets that are available to be given to order
+	 * @param fulfilledOrders stack to add the order to when finished being processed
+	 * @param currentDate the order is being processed
+	 */
 	public static void processOrder(Order order, Deque<List<Gadget>> gadgets, Deque<Order> fulfilledOrders, LocalDate currDate) {
 		List<Gadget> batch = gadgets.pop();
 		List<Gadget> orderedGadgets = new LinkedList<>();
@@ -192,10 +216,8 @@ public class GadgetFactoryStore {
 		for(int i =0; i < order.getGadgets(); i++) {
 			orderedGadgets.add(batch.remove(0));
 			
-			if (batch.size() == 0) {
-				if (gadgets.size() != 0) {
+			if (batch.size() == 0 && gadgets.size() != 0) {
 					batch = gadgets.pop();
-				}
 			}
 		}
 		
@@ -209,10 +231,22 @@ public class GadgetFactoryStore {
 		fulfilledOrders.push(order);
 	}
 	
+	/**
+	 * Calculates profit using (total_sales_this_month – total_return_this_month)/1.08 –
+	 * (total_number_of_gadgets_sold_this_month – total_number_of_gadgets_returned_this_month) *
+     * material_price_this_month. 
+     * Then displays the monthly report showing total sales, gadgets sold, gadgets returned,
+     * and profit made. 
+     * Returns the profit made that month.
+	 * 
+	 * @param totalSales made throughout the month
+	 * @param gadgetsSold throughout the month
+	 * @param returned gadgets through the month
+	 * @param materialPrice for the month
+	 * @return the profit made that month
+	 */
 	public static double monthlyReport(double totalSales, int gadgetsSold, int returned, int materialPrice) {
-		//(total_sales_this_month – total_return_this_month)/1.08 –
-		//(total_number_of_gadgets_sold_this_month – total_number_of_gadgets_returned_this_month) *
-		//material_price_this_month
+		//
 		double profit = (totalSales - returned)/1.08 - (gadgetsSold - returned)*materialPrice;
 		DecimalFormat format = new DecimalFormat("$####0.00");
 		
@@ -225,6 +259,18 @@ public class GadgetFactoryStore {
 		return profit;
 	}
 	
+	/**
+	 * Returns an previously completed order from the fulfilled orders stack.
+	 * It compares the current date with date old order was completed to make sure
+	 * returning order is not older than 3 days to comply with companies policy.
+	 * If order can not be returned because it goes against policy or there are no orders 
+	 * to be returned, it returns null.
+	 * Otherwise, it displays returning order and returns the order that was returned.
+	 * 
+	 * @param the current date 
+	 * @param fulfilledOrders stack to take old orders from
+	 * @return order that was returned, if order could not be return, returns null
+	 */
 	public static Order returnOrder(LocalDate date, Deque<Order> fulfilledOrders) {
 		Random rand = new Random();
 		final int returnNumber = 3;
@@ -247,6 +293,17 @@ public class GadgetFactoryStore {
 		return null;
 	}
 	
+	/**
+	 * Calculations the adjusted profit by taking the original
+	 * previous month's profits and subtracting the money made
+	 * from the returned order. 
+	 * Displays the profit before and after.
+	 * Returns adjusted profit. 
+	 * 
+	 * @param previous profit from the month before
+	 * @param returned order from the month before
+	 * @return the adjusted profit as a result of the returning order
+	 */
 	public static double adjustLastMonthProfit(double prevProfit, Order returnedOrder) {
 		DecimalFormat format = new DecimalFormat("$####0.00");
 		double adjustedProfit = prevProfit - returnedOrder.calcPrice();
